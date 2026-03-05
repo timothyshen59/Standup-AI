@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(cuid())
+  auth0Id         String    @unique @map("auth0_id")
+  email           String    @unique
+  name            String?
+  githubUsername   String?   @map("github_username")
+  githubToken     String?   @map("github_token")    // encrypted at rest
+  llmApiKey       String?   @map("llm_api_key")     // encrypted at rest
+  preferredModel  String    @default("claude-sonnet-4-20250514") @map("preferred_model")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  standups        Standup[]
+  settings        UserSettings?
+
+  @@map("users")
+}
+
+model UserSettings {
+  id             String  @id @default(cuid())
+  userId         String  @unique @map("user_id")
+  activityWindow String  @default("24h") @map("activity_window")
+  repos          String[] @default([])  // specific repos to track, empty = all
+  excludeRepos   String[] @default([]) @map("exclude_repos")
+  standupFormat  String  @default("standard") @map("standup_format")
+
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model Standup {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  content     String   @db.Text
+  prompt      String?  @db.Text
+  repos       String[]
+  model       String
+  tokensUsed  Int?     @map("tokens_used")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("standups")
+}
