@@ -1,9 +1,18 @@
 # standup.ai
 
 AI-powered standup generator from GitHub activity via MCP (Model Context Protocol).
+![Dashboard](./assets/dashboard.png)
 
+
+## Tech Stack
+Node.js · TypeScript · React · Auth0 · OpenAI · MCP
+
+## Features
+- Authenticates via GitHub OAuth
+- Fetches your recent GitHub activity automatically
+- Generates daily standups using OpenAI
+- Simple copy-paste interface
 ## Architecture
-
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Frontend (Vite + React + TS + Tailwind/ShadCN)                │
